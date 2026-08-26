@@ -23,6 +23,10 @@ type DonorToolResult = {
 export default function ChatPage() {
   const [input, setInput] = useState("");
 
+  const [buttonState, setButtonState] = useState<
+    "idle" | "loading" | "success" | "error"
+  >("idle");
+
   const {
     messages,
     sendMessage,
@@ -41,24 +45,66 @@ export default function ChatPage() {
     if (!message || loading) return;
 
     setInput("");
+    setButtonState("loading");
 
     try {
       await sendMessage({
         text: message,
       });
+
+      // Small success feedback
+      setButtonState("success");
+
+      window.setTimeout(() => {
+        setButtonState("idle");
+      }, 1200);
     } catch {
-      // useChat exposes the error through `error`
+      setButtonState("error");
     }
   };
 
   const handleRetry = async () => {
     if (loading) return;
 
+    setButtonState("loading");
+
     try {
       await regenerate();
+
+      setButtonState("success");
+
+      window.setTimeout(() => {
+        setButtonState("idle");
+      }, 1200);
     } catch {
-      // Error remains visible through the useChat error state
+      setButtonState("error");
     }
+  };
+
+  const handleStop = () => {
+    stop();
+    setButtonState("idle");
+  };
+
+  const getButtonText = () => {
+    if (buttonState === "loading") {
+      return (
+        <span className="button-content">
+          <span className="spinner" />
+          Sending...
+        </span>
+      );
+    }
+
+    if (buttonState === "success") {
+      return "✓ Sent";
+    }
+
+    if (buttonState === "error") {
+      return "⚠ Failed";
+    }
+
+    return "Send";
   };
 
   return (
@@ -93,6 +139,14 @@ export default function ChatPage() {
           border: 1px solid #ccc;
           border-radius: 6px;
           outline: none;
+          transition:
+            border-color 0.2s ease,
+            box-shadow 0.2s ease;
+        }
+
+        .chat-input:focus {
+          border-color: #2563eb;
+          box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
         }
 
         .send-button,
@@ -101,17 +155,71 @@ export default function ChatPage() {
           padding: 12px 20px;
           border-radius: 6px;
           cursor: pointer;
+          font-size: 14px;
         }
 
         .send-button {
-          border: 1px solid #ccc;
-          background: white;
+          min-width: 110px;
+          border: 1px solid #2563eb;
+          background: #2563eb;
+          color: white;
+          transition:
+            transform 0.2s ease,
+            background 0.2s ease,
+            opacity 0.2s ease;
+        }
+
+        .send-button:hover:not(:disabled) {
+          transform: translateY(-1px);
+          background: #1d4ed8;
+        }
+
+        .send-button:active:not(:disabled) {
+          transform: scale(0.97);
+        }
+
+        .send-button:focus-visible {
+          outline: 3px solid rgba(37, 99, 235, 0.3);
+          outline-offset: 2px;
+        }
+
+        .send-button:disabled {
+          cursor: not-allowed;
+          opacity: 0.6;
+        }
+
+        .send-button.success {
+          background: #16a34a;
+          border-color: #16a34a;
+        }
+
+        .send-button.error {
+          background: #dc2626;
+          border-color: #dc2626;
         }
 
         .stop-button {
+          min-width: 110px;
           border: none;
           background: #dc2626;
           color: white;
+          transition:
+            transform 0.2s ease,
+            background 0.2s ease;
+        }
+
+        .stop-button:hover {
+          background: #b91c1c;
+          transform: translateY(-1px);
+        }
+
+        .stop-button:active {
+          transform: scale(0.97);
+        }
+
+        .stop-button:focus-visible {
+          outline: 3px solid rgba(220, 38, 38, 0.3);
+          outline-offset: 2px;
         }
 
         .retry-button {
@@ -119,11 +227,52 @@ export default function ChatPage() {
           background: white;
           color: #b91c1c;
           margin-top: 8px;
+          transition:
+            background 0.2s ease,
+            transform 0.2s ease;
+        }
+
+        .retry-button:hover:not(:disabled) {
+          background: #fef2f2;
+          transform: translateY(-1px);
+        }
+
+        .retry-button:focus-visible {
+          outline: 3px solid rgba(37, 99, 235, 0.25);
+          outline-offset: 2px;
+        }
+
+        .retry-button:disabled {
+          cursor: not-allowed;
+          opacity: 0.6;
+        }
+
+        .button-content {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+        }
+
+        .spinner {
+          width: 14px;
+          height: 14px;
+          border: 2px solid rgba(255, 255, 255, 0.4);
+          border-top-color: white;
+          border-radius: 50%;
+          animation: spin 0.7s linear infinite;
+        }
+
+        @keyframes spin {
+          to {
+            transform: rotate(360deg);
+          }
         }
 
         .examples {
           display: flex;
           flex-wrap: wrap;
+          justify-content: center;
           gap: 8px;
           margin-top: 15px;
         }
@@ -134,10 +283,31 @@ export default function ChatPage() {
           border-radius: 6px;
           background: #f8fafc;
           cursor: pointer;
+          transition:
+            background 0.2s ease,
+            transform 0.2s ease;
         }
 
         .example-button:hover {
           background: #f1f5f9;
+          transform: translateY(-1px);
+        }
+
+        .example-button:focus-visible {
+          outline: 3px solid rgba(37, 99, 235, 0.2);
+          outline-offset: 2px;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .send-button,
+          .stop-button,
+          .retry-button,
+          .example-button,
+          .chat-input,
+          .spinner {
+            transition: none;
+            animation: none;
+          }
         }
 
         @media (max-width: 600px) {
@@ -164,9 +334,7 @@ export default function ChatPage() {
       `}</style>
 
       <main className="page">
-        <h1 style={{ marginBottom: "5px" }}>
-          BloodConnect AI
-        </h1>
+        <h1>BloodConnect AI</h1>
 
         <p
           style={{
@@ -178,7 +346,6 @@ export default function ChatPage() {
         </p>
 
         <div className="chat-area">
-          {/* Empty conversation state */}
           {messages.length === 0 && (
             <div
               style={{
@@ -255,7 +422,6 @@ export default function ChatPage() {
                 </strong>
 
                 {message.parts.map((part, index) => {
-                  {/* Normal AI text */}
                   if (part.type === "text") {
                     return (
                       <p
@@ -270,12 +436,10 @@ export default function ChatPage() {
                     );
                   }
 
-                  {/* Blood donor tool */}
                   if (
                     part.type ===
                     "tool-searchBloodDonors"
                   ) {
-                    {/* Tool input streaming */}
                     if (
                       part.state ===
                       "input-streaming"
@@ -298,7 +462,6 @@ export default function ChatPage() {
                       );
                     }
 
-                    {/* Tool input received */}
                     if (
                       part.state ===
                       "input-available"
@@ -340,7 +503,6 @@ export default function ChatPage() {
                       );
                     }
 
-                    {/* Tool result */}
                     if (
                       part.state ===
                       "output-available"
@@ -348,7 +510,6 @@ export default function ChatPage() {
                       const result =
                         part.output as DonorToolResult;
 
-                      {/* Tool returned error */}
                       if (!result.success) {
                         return (
                           <div
@@ -383,7 +544,6 @@ export default function ChatPage() {
                         );
                       }
 
-                      {/* Successful result */}
                       return (
                         <div
                           key={index}
@@ -426,7 +586,6 @@ export default function ChatPage() {
                             {result.total ?? 0}
                           </p>
 
-                          {/* Donor cards */}
                           {result.donors &&
                             result.donors.length > 0 && (
                               <div
@@ -488,7 +647,6 @@ export default function ChatPage() {
                               </div>
                             )}
 
-                          {/* Empty result */}
                           {result.total === 0 && (
                             <div
                               style={{
@@ -519,7 +677,6 @@ export default function ChatPage() {
                       );
                     }
 
-                    {/* Tool execution error */}
                     if (
                       part.state ===
                       "output-error"
@@ -564,7 +721,6 @@ export default function ChatPage() {
             </div>
           ))}
 
-          {/* Loading */}
           {loading && (
             <div
               style={{
@@ -576,7 +732,6 @@ export default function ChatPage() {
             </div>
           )}
 
-          {/* General error */}
           {error && (
             <div
               style={{
@@ -608,7 +763,6 @@ export default function ChatPage() {
           )}
         </div>
 
-        {/* Input */}
         <div className="input-area">
           <input
             className="chat-input"
@@ -623,24 +777,33 @@ export default function ChatPage() {
             }}
             placeholder="Try: Find O+ donors in Dhaka"
             disabled={loading}
+            aria-label="Ask BloodConnect AI"
           />
 
           {loading ? (
             <button
               type="button"
               className="stop-button"
-              onClick={stop}
+              onClick={handleStop}
+              aria-label="Stop AI response"
             >
               Stop
             </button>
           ) : (
             <button
               type="button"
-              className="send-button"
+              className={`send-button ${
+                buttonState === "success"
+                  ? "success"
+                  : buttonState === "error"
+                    ? "error"
+                    : ""
+              }`}
               onClick={() => handleSend()}
               disabled={!input.trim()}
+              aria-label="Send message"
             >
-              Send
+              {getButtonText()}
             </button>
           )}
         </div>
