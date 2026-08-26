@@ -5,9 +5,9 @@ const NAV_LINKS = [
   { href: "/donors", label: "Donor Search" },
   { href: "/register", label: "Register Donor" },
   { href: "/blood-bank", label: "Blood Bank" },
+  { href: "/chat", label: "AI Chat" },
   { href: "/contact", label: "Contact" },
 ];
-
 export default function Navbar() {
   return (
     <header className="border-b border-[var(--color-border)] bg-white">

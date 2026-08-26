@@ -1,6 +1,8 @@
-import PagePlaceholder from "@/components/layout/PagePlaceholder";
+import PagePlaceholder from "../../components/layout/PagePlaceholder";
 
-export const metadata = { title: "Donor Search | BloodConnect" };
+export const metadata = {
+  title: "Donor Search | BloodConnect",
+};
 
 export default function DonorsPage() {
   return (
