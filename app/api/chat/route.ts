@@ -6,7 +6,7 @@ import {
   type UIMessage,
 } from "ai";
 
-import { groq } from "@ai-sdk/groq";
+import { openai } from "@ai-sdk/openai";
 import { z } from "zod";
 
 type Donor = {
@@ -55,7 +55,7 @@ export async function POST(req: Request) {
     const messages = body.messages as UIMessage[];
 
     const result = streamText({
-      model: groq("openai/gpt-oss-120b"),
+      model: openai("gpt-4.1-mini"),
 
       system: `
 You are BloodConnect AI.
