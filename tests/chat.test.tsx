@@ -1,5 +1,19 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import {
+  describe,
+  it,
+  expect,
+  vi,
+  beforeEach,
+  afterEach,
+} from "vitest";
+
+import {
+  render,
+  screen,
+  fireEvent,
+  waitFor,
+  cleanup,
+} from "@testing-library/react";
 
 import ChatPage from "../app/chat/page";
 import { useChat } from "@ai-sdk/react";
@@ -13,6 +27,25 @@ const mockedUseChat = vi.mocked(useChat);
 let mockSendMessage: ReturnType<typeof vi.fn>;
 let mockRegenerate: ReturnType<typeof vi.fn>;
 let mockStop: ReturnType<typeof vi.fn>;
+
+// IMPORTANT:
+// Remove the previous rendered page after every test.
+afterEach(() => {
+  cleanup();
+});
+
+const getChatInput = () =>
+  screen.getAllByPlaceholderText("Try: Find O+ donors in Dhaka")[0];
+
+const getSendButton = () =>
+  screen.getAllByRole("button", {
+    name: "Send message",
+  })[0];
+
+const getStopButton = () =>
+  screen.getAllByRole("button", {
+    name: "Stop AI response",
+  })[0];
 
 beforeEach(() => {
   mockSendMessage = vi.fn().mockResolvedValue(undefined);
@@ -33,33 +66,29 @@ describe("BloodConnect AI Chat", () => {
   it("renders the chat page correctly", () => {
     render(<ChatPage />);
 
-    expect(screen.getByText("BloodConnect AI")).toBeInTheDocument();
-
     expect(
-      screen.getByText("AI-assisted blood donor search and guidance")
+      screen.getByText("BloodConnect AI")
     ).toBeInTheDocument();
 
     expect(
-      screen.getByRole("button", { name: "Send message" })
+      screen.getByText(
+        "AI-assisted blood donor search and guidance"
+      )
     ).toBeInTheDocument();
+
+    expect(getSendButton()).toBeInTheDocument();
   });
 
   it("keeps Send disabled when the input is empty", () => {
     render(<ChatPage />);
 
-    const sendButton = screen.getByRole("button", {
-      name: "Send message",
-    });
-
-    expect(sendButton).toBeDisabled();
+    expect(getSendButton()).toBeDisabled();
   });
 
   it("enables Send when the user enters a message", () => {
     render(<ChatPage />);
 
-    const input = screen.getByRole("textbox", {
-      name: "Ask BloodConnect AI",
-    });
+    const input = getChatInput();
 
     fireEvent.change(input, {
       target: {
@@ -67,17 +96,13 @@ describe("BloodConnect AI Chat", () => {
       },
     });
 
-    expect(
-      screen.getByRole("button", { name: "Send message" })
-    ).toBeEnabled();
+    expect(getSendButton()).toBeEnabled();
   });
 
   it("sends a message when the Send button is clicked", async () => {
     render(<ChatPage />);
 
-    const input = screen.getByRole("textbox", {
-      name: "Ask BloodConnect AI",
-    });
+    const input = getChatInput();
 
     fireEvent.change(input, {
       target: {
@@ -85,9 +110,7 @@ describe("BloodConnect AI Chat", () => {
       },
     });
 
-    fireEvent.click(
-      screen.getByRole("button", { name: "Send message" })
-    );
+    fireEvent.click(getSendButton());
 
     await waitFor(() => {
       expect(mockSendMessage).toHaveBeenCalledWith({
@@ -108,11 +131,11 @@ describe("BloodConnect AI Chat", () => {
 
     render(<ChatPage />);
 
-    expect(screen.getByText("AI is working...")).toBeInTheDocument();
+    expect(
+      screen.getByText("AI is working...")
+    ).toBeInTheDocument();
 
-    const stopButton = screen.getByRole("button", {
-      name: "Stop AI response",
-    });
+    const stopButton = getStopButton();
 
     expect(stopButton).toBeInTheDocument();
     expect(stopButton).toHaveTextContent("Stop");
@@ -130,11 +153,7 @@ describe("BloodConnect AI Chat", () => {
 
     render(<ChatPage />);
 
-    fireEvent.click(
-      screen.getByRole("button", {
-        name: "Stop AI response",
-      })
-    );
+    fireEvent.click(getStopButton());
 
     expect(mockStop).toHaveBeenCalledTimes(1);
   });
@@ -142,9 +161,7 @@ describe("BloodConnect AI Chat", () => {
   it("shows the success state after sending", async () => {
     render(<ChatPage />);
 
-    const input = screen.getByRole("textbox", {
-      name: "Ask BloodConnect AI",
-    });
+    const input = getChatInput();
 
     fireEvent.change(input, {
       target: {
@@ -152,19 +169,21 @@ describe("BloodConnect AI Chat", () => {
       },
     });
 
-    fireEvent.click(
-      screen.getByRole("button", { name: "Send message" })
-    );
+    fireEvent.click(getSendButton());
 
     await waitFor(() => {
-      expect(screen.getByText("✓ Sent")).toBeInTheDocument();
+      expect(
+        screen.getByText("✓ Sent")
+      ).toBeInTheDocument();
     });
   });
 
   it("shows the error state when sending fails", async () => {
     mockSendMessage = vi
       .fn()
-      .mockRejectedValue(new Error("Request failed"));
+      .mockRejectedValue(
+        new Error("Request failed")
+      );
 
     mockedUseChat.mockReturnValue({
       messages: [],
@@ -177,9 +196,7 @@ describe("BloodConnect AI Chat", () => {
 
     render(<ChatPage />);
 
-    const input = screen.getByRole("textbox", {
-      name: "Ask BloodConnect AI",
-    });
+    const input = getChatInput();
 
     fireEvent.change(input, {
       target: {
@@ -187,12 +204,12 @@ describe("BloodConnect AI Chat", () => {
       },
     });
 
-    fireEvent.click(
-      screen.getByRole("button", { name: "Send message" })
-    );
+    fireEvent.click(getSendButton());
 
     await waitFor(() => {
-      expect(screen.getByText("⚠ Failed")).toBeInTheDocument();
+      expect(
+        screen.getByText("⚠ Failed")
+      ).toBeInTheDocument();
     });
   });
 
@@ -238,7 +255,9 @@ describe("BloodConnect AI Chat", () => {
       screen.getByText("🩸 Blood Donor Search Result")
     ).toBeInTheDocument();
 
-    expect(screen.getByText("Rahim")).toBeInTheDocument();
+    expect(
+      screen.getByText("Rahim")
+    ).toBeInTheDocument();
 
     expect(
       screen.getByText("Available Donors:")
