@@ -1,61 +1,33 @@
-# Accessible Component Notes
+# 3D Blood Bag Experience
 
-## Modal Dialog
+## What I Built
 
-I built the modal from scratch following the WAI-ARIA dialog pattern.
+I built an interactive 3D blood bag experience for the BloodConnect project using React Three Fiber and Three.js.
 
-### What I handled manually
-- `role="dialog"`
-- `aria-modal="true"`
-- `aria-labelledby` for the dialog title
-- Escape key closes the dialog
-- Focus moves into the dialog when opened
-- Focus returns to the trigger when closed
-- Clicking the overlay closes the dialog
-- Keyboard-accessible close button
+The scene displays a lightweight 3D blood bag and allows users to select different blood groups. The blood inside the bag changes based on the selected blood group.
 
-### What shadcn/ui would provide
-shadcn/ui provides an accessible dialog structure and handles many accessibility details such as focus management, keyboard interaction, and ARIA attributes.
+## Interactions
 
----
+- Drag to rotate the 3D blood bag.
+- Scroll to zoom.
+- Select a blood group using the control buttons.
+- The blood color changes when the selected blood group changes.
+- Animation can be paused or resumed.
+- The experience supports keyboard-accessible controls.
+- Reduced-motion support is included for users who prefer less animation.
 
-## Tabs
+## Performance Note
 
-I built the tabs from scratch following the WAI-ARIA tabs pattern.
+I used lightweight low-poly geometry instead of loading a large external 3D model. The scene uses simple geometry and a limited number of objects to keep rendering lightweight.
 
-### What I handled manually
-- `role="tablist"`
-- `role="tab"`
-- `role="tabpanel"`
-- `aria-selected`
-- `aria-controls`
-- `aria-labelledby`
-- Arrow-key navigation between tabs
-- Keyboard focus management
-- Active tab state
+I also avoided unnecessary external model loading and kept the 3D scene simple so it can work smoothly on normal devices and mobile screens.
 
-### What shadcn/ui would provide
-shadcn/ui provides an accessible tabs implementation with the required ARIA structure and keyboard behavior, reducing the amount of accessibility logic that needs to be written manually.
+## Mobile and Accessibility
 
----
+The layout is responsive and the controls are designed to work on smaller screens.
 
-## Disclosure
+The interface includes keyboard-accessible controls and respects the user's reduced-motion preference.
 
-I built the disclosure from scratch following the WAI-ARIA disclosure pattern.
+## What I Would Add With More Time
 
-### What I handled manually
-- Toggle open/closed state
-- `aria-expanded`
-- `aria-controls`
-- Keyboard activation through the native button
-- Visible focus styling
-- Show/hide content
-
-### What shadcn/ui would provide
-shadcn/ui provides reusable accessible components and handles common interaction and accessibility patterns, allowing developers to focus more on the application content and styling.
-
----
-
-## Key Learning
-
-Building these components manually showed me that accessible components require more than visual styling. Keyboard interaction, focus management, semantic roles, and ARIA attributes are important parts of the implementation.
+With more time, I would add a more realistic blood bag model, improved lighting and materials, and additional visual effects. I would also add more detailed blood-group information and improve the 3D interaction experience.
