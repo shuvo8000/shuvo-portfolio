@@ -859,3 +859,98 @@ header nav ul a:hover {
     font-size: 38px;
   }
 }
+
+/* Shader Hero */
+
+.shader-hero {
+  position: relative;
+  width: 100%;
+  min-height: 620px;
+  overflow: hidden;
+  background: #020617;
+}
+
+.shader-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.shader-overlay {
+  position: relative;
+  z-index: 2;
+  min-height: 620px;
+  display: flex;
+  align-items: center;
+}
+
+.shader-content {
+  width: min(1100px, calc(100% - 40px));
+  margin: 0 auto;
+  padding: 80px 0;
+}
+
+.shader-eyebrow {
+  margin: 0 0 18px;
+  color: #60a5fa;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.shader-title {
+  max-width: 760px;
+  margin: 0;
+  color: #ffffff;
+  font-size: clamp(42px, 7vw, 82px);
+  line-height: 0.98;
+  letter-spacing: -0.045em;
+  font-weight: 700;
+}
+
+.shader-description {
+  max-width: 560px;
+  margin: 28px 0 0;
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 18px;
+  line-height: 1.7;
+}
+
+.shader-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 28px;
+}
+
+.shader-tags span {
+  padding: 7px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 999px;
+  color: rgba(255, 255, 255, 0.8);
+  background: rgba(255, 255, 255, 0.06);
+  font-size: 13px;
+}
+
+@media (max-width: 700px) {
+  .shader-hero,
+  .shader-overlay {
+    min-height: 540px;
+  }
+
+  .shader-content {
+    width: min(100% - 28px, 1100px);
+    padding: 60px 0;
+  }
+
+  .shader-title {
+    font-size: 48px;
+  }
+
+  .shader-description {
+    font-size: 16px;
+  }
+}
